@@ -46,7 +46,13 @@ class LayerMixer:
             return files
 
         log.debug(f"Attempting to parse directory {pathtodir}")
-        directory_content = listdir(pathtodir)
+        # avoiding the issue with invalid directory path
+        try:
+            directory_content = listdir(pathtodir)
+        except Exception as e:
+            log.error(f"Unable to process {pathtodir}: {e}")
+            directory_content = []
+
         log.debug(f"Uncategorized content inside is: {directory_content}")
 
         for item in directory_content:
