@@ -29,50 +29,61 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 handler = logging.StreamHandler()
 formatter = logging.Formatter(
-                        fmt="[%(asctime)s][%(name)s][%(levelname)s] %(message)s",
-                        datefmt="%H:%M:%S",
-                        )
+    fmt="[%(asctime)s][%(name)s][%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+)
 handler.setFormatter(formatter)
 log.addHandler(handler)
 
 ap = argparse.ArgumentParser()
-ap.add_argument("items",
-                nargs = "*",
-                help = ("Path(s) to process images from. If not set - will use "
-                        f"default path, which is {IMGDIR}"),
-                )
-ap.add_argument("--savedir",
-                help = (f"Directory to save results into. Default: {SAVEDIR}"),
-                )
-ap.add_argument("--prefixes",
-                nargs = "+",
-                help = ("Prefixes used to split received images into layer groups."
-                        "Mask isnt regexp, but text that should be in file name."),
-                required = "True",
-                )
-ap.add_argument("--include-background",
-                action = "store_true",
-                help = ("If enabled, backgrounds will be also threated as 1st "
-                        "layer and added into constructors. Default = False"),
-                )
-ap.add_argument("--debug",
-                action = "store_true",
-                help = "Show debug messages in log",
-                )
+ap.add_argument(
+    "items",
+    nargs="*",
+    help=(
+        "Path(s) to process images from. If not set - will use "
+        f"default path, which is {IMGDIR}"
+    ),
+)
+ap.add_argument(
+    "--savedir",
+    help=(f"Directory to save results into. Default: {SAVEDIR}"),
+)
+ap.add_argument(
+    "--prefixes",
+    nargs="+",
+    help=(
+        "Prefixes used to split received images into layer groups."
+        "Mask isnt regexp, but text that should be in file name."
+    ),
+    required="True",
+)
+ap.add_argument(
+    "--include-background",
+    action="store_true",
+    help=(
+        "If enabled, backgrounds will be also threated as 1st "
+        "layer and added into constructors. Default = False"
+    ),
+)
+ap.add_argument(
+    "--debug",
+    action="store_true",
+    help="Show debug messages in log",
+)
 args = ap.parse_args()
-#TODO: maybe add ability to specify layer's files manually
+# TODO: maybe add ability to specify layer's files manually
 
 if args.debug:
     log.setLevel(logging.DEBUG)
 
-#TODO: add ability to specify prefixes in some sort of config file
+# TODO: add ability to specify prefixes in some sort of config file
 prefixes = args.prefixes
 log.debug(f"Got following prefixes to parse: {prefixes}")
 
 mixer = laymix.LayerMixer(
-                prefixes = prefixes,
-                savedir = (args.savedir or SAVEDIR),
-                )
+    prefixes=prefixes,
+    savedir=(args.savedir or SAVEDIR),
+)
 items = args.items or [IMGDIR]
 
 files = []
@@ -86,9 +97,9 @@ if not files:
 
 log.info("Sorting images into layer groups by filenames")
 constructors = mixer.make_constructors(
-                files = files,
-                include_background = args.include_background,
-                )
+    files=files,
+    include_background=args.include_background,
+)
 
 if not constructors:
     log.critical("None of provided images match provided prefixes!")
@@ -98,8 +109,8 @@ log.info("Building images (it may take some time)")
 for item in constructors:
     imgs = mixer.build_images(item)
     mixer.save(
-                images = imgs,
-                name_mask = item.name,
-                )
+        images=imgs,
+        name_mask=item.name,
+    )
 
 log.info("Done")

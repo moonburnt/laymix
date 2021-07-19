@@ -23,19 +23,21 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 @dataclass
 class ImageParts:
     name: str
     image: str
     parts: dict
 
+
 class LayerMixer:
-    def __init__(self, prefixes:list, savedir:str):
+    def __init__(self, prefixes: list, savedir: str):
         self.prefixes = prefixes
         self.savedir = savedir
-        makedirs(self.savedir, exist_ok = True)
+        makedirs(self.savedir, exist_ok=True)
 
-    def get_files(self, pathtodir:str) -> list:
+    def get_files(self, pathtodir: str) -> list:
         """Get list of files in directory"""
         files = []
         if isfile(pathtodir):
@@ -52,23 +54,22 @@ class LayerMixer:
             itempath = join(pathtodir, item)
             if isdir(itempath):
                 log.debug(f"{itempath} leads to directory, processing its content")
-                #looping over this very function for all subdirectories
+                # looping over this very function for all subdirectories
                 files += self.get_files(itempath)
             else:
-                #assuming that everything that isnt directory is file
+                # assuming that everything that isnt directory is file
                 log.debug(f"{itempath} leads to file, adding to list")
                 files.append(itempath)
 
         log.debug(f"Got following files in total: {files}")
         return files
 
-    def filter_by_mask(self, files:list, mask:str,
-                        exact_match:bool = False) -> list:
+    def filter_by_mask(self, files: list, mask: str, exact_match: bool = False) -> list:
         """Get items that has provided mask in them"""
         filtered = []
 
         for item in files:
-            #TODO: maybe make case-insensetivity an option
+            # TODO: maybe make case-insensetivity an option
             item_name = str(item).lower()
             mask = mask.lower()
             if exact_match:
@@ -81,15 +82,16 @@ class LayerMixer:
         log.debug(f"Got following items matching mask {mask}: {filtered}")
         return filtered
 
-    def make_constructors(self, files:list,
-                                include_background:bool = False) -> ImageParts:
+    def make_constructors(
+        self, files: list, include_background: bool = False
+    ) -> ImageParts:
         """Create image constructors to use with self.build_images()"""
         raw_items = {}
         for prefix in self.prefixes:
             items = self.filter_by_mask(
-                                        files = files,
-                                        mask = prefix,
-                                        )
+                files=files,
+                mask=prefix,
+            )
             raw_items[prefix] = items
 
         backgrounds = []
@@ -112,9 +114,9 @@ class LayerMixer:
             valid_parts_counter = 0
             for part in raw_items:
                 items = self.filter_by_mask(
-                                            files = raw_items[part],
-                                            mask = pic_name,
-                                            )
+                    files=raw_items[part],
+                    mask=pic_name,
+                )
                 pic_parts[part] = items
                 if items:
                     valid_parts_counter += 1
@@ -128,17 +130,17 @@ class LayerMixer:
                     pic_parts[part].append(None)
 
             image_constructor = ImageParts(
-                                        name = pic_name,
-                                        image = item,
-                                        parts = pic_parts,
-                                        )
+                name=pic_name,
+                image=item,
+                parts=pic_parts,
+            )
 
             constructors.append(image_constructor)
 
         log.debug(f"Got following image constructors: {constructors}")
         return constructors
 
-    def build_images(self, constructor:ImageParts) -> list:
+    def build_images(self, constructor: ImageParts) -> list:
         """Build all possible image variants out of provided constructor"""
         log.debug(f"Building {constructor.name}")
 
@@ -152,11 +154,11 @@ class LayerMixer:
 
         img_parts = []
         for part in constructor.parts:
-            #fixing issue with product returning [] on non-existing lists
+            # fixing issue with product returning [] on non-existing lists
             if constructor.parts[part]:
                 img_parts.append(constructor.parts[part])
 
-        #getting all possible parts variations:
+        # getting all possible parts variations:
         variations = list(product(*img_parts))
 
         for sequence in variations:
@@ -174,7 +176,7 @@ class LayerMixer:
 
         return images
 
-    def save(self, images:list, name_mask:str, close_after_done:bool = True):
+    def save(self, images: list, name_mask: str, close_after_done: bool = True):
         """Save specified images on disk"""
         for number, item in enumerate(images):
             filepath = join(self.savedir, f"{name_mask}_{number}")
