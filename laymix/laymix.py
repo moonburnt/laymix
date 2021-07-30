@@ -76,7 +76,7 @@ class LayerMixer:
 
         for item in files:
             # TODO: maybe make case-insensetivity an option
-            item_name = str(item).lower()
+            item_name = str(basename(item)).lower()
             mask = mask.lower()
             if exact_match:
                 if (item_name == mask) or (splitext(item_name)[0] == mask):
@@ -93,6 +93,7 @@ class LayerMixer:
         files: list,
         include_background: bool = False,
         ignore_masks: bool = False,
+        exact_match: bool = False,
     ) -> ImageParts:
         """Create image constructors to use with self.build_images()"""
         # Determining if certain images are prefixes, based on their names
@@ -101,6 +102,7 @@ class LayerMixer:
             items = self.filter_by_mask(
                 files=files,
                 mask=prefix,
+                exact_match=exact_match,
             )
             raw_items[prefix] = items
 

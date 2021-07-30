@@ -76,6 +76,12 @@ ap.add_argument(
     action="store_true",
     help="Toggle ability to apply layers to all images",
 )
+
+ap.add_argument(
+    "--exact-match",
+    action="store_true",
+    help="Toggle ability to only use layers with names matching prefixes exactly",
+)
 args = ap.parse_args()
 # TODO: maybe add ability to specify layer's files manually
 
@@ -106,6 +112,7 @@ constructors = mixer.make_constructors(
     files=files,
     include_background=args.include_background,
     ignore_masks=args.apply_to_all,
+    exact_match=args.exact_match,
 )
 
 if not constructors:
