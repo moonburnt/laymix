@@ -89,9 +89,13 @@ class LayerMixer:
         return filtered
 
     def make_constructors(
-        self, files: list, include_background: bool = False
+        self,
+        files: list,
+        include_background: bool = False,
+        ignore_masks: bool = False,
     ) -> ImageParts:
         """Create image constructors to use with self.build_images()"""
+        # Determining if certain images are prefixes, based on their names
         raw_items = {}
         for prefix in self.prefixes:
             items = self.filter_by_mask(
@@ -100,6 +104,9 @@ class LayerMixer:
             )
             raw_items[prefix] = items
 
+        # Determining if certain images are backgrounds or layers, based on if
+        # their names are in prefixes storage or not. Probably possible to do
+        # with listcomp in way prettier manner, but for now it will do #TODO
         backgrounds = []
         for f in files:
             exists = False
@@ -113,17 +120,25 @@ class LayerMixer:
                 log.debug(f"Threating {f} as background")
                 backgrounds.append(f)
 
+        # Creating image constructors - storages of images that have layers to add
         constructors = []
         for item in backgrounds:
             pic_name = basename(splitext(item)[0])
             pic_parts = {}
             valid_parts_counter = 0
             for part in raw_items:
-                items = self.filter_by_mask(
-                    files=raw_items[part],
-                    mask=pic_name,
-                )
-                pic_parts[part] = items
+                # making it possible to add layers (say, watermark) to all imgs
+                # for now its only done globally - maybe I should add per-prefix
+                # toggle for that? #TODO
+                if ignore_masks:
+                    items = [i for i in raw_items[part] if (i != item)]
+                    pic_parts[part] = items
+                else:
+                    items = self.filter_by_mask(
+                        files=raw_items[part],
+                        mask=pic_name,
+                    )
+                    pic_parts[part] = items
                 if items:
                     valid_parts_counter += 1
 

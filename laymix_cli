@@ -70,6 +70,12 @@ ap.add_argument(
     action="store_true",
     help="Show debug messages in log",
 )
+
+ap.add_argument(
+    "--apply-to-all",
+    action="store_true",
+    help="Toggle ability to apply layers to all images",
+)
 args = ap.parse_args()
 # TODO: maybe add ability to specify layer's files manually
 
@@ -99,6 +105,7 @@ log.info("Sorting images into layer groups by filenames")
 constructors = mixer.make_constructors(
     files=files,
     include_background=args.include_background,
+    ignore_masks=args.apply_to_all,
 )
 
 if not constructors:
