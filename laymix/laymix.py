@@ -163,17 +163,9 @@ class LayerMixer:
         log.debug(f"Got following image constructors: {constructors}")
         return constructors
 
-    def build_images(self, constructor: ImageParts) -> list:
+    def build_images(self, constructor: ImageParts) -> int:
         """Build all possible image variants out of provided constructor"""
         log.debug(f"Building {constructor.name}")
-
-        def add_image_layer(image, layer):
-            img = Image.alpha_composite(image, layer)
-            return img
-
-        images = []
-
-        background = Image.open(constructor.image)
 
         img_parts = []
         for part in constructor.parts:
@@ -184,27 +176,38 @@ class LayerMixer:
         # getting all possible parts variations:
         variations = list(product(*img_parts))
 
-        for sequence in variations:
-            layered_img = background
-            for path in sequence:
-                if not path:
-                    continue
+        # dumping layer images into storage to avoid reopening
+        layer_imgs = {}
+        for part in img_parts:
+            for path in part:
+                # doing this to avoid crash with --include-background flag,
+                # since it adds None object as one of valid parts
+                if path:
+                    layer_imgs[path] = Image.open(path)
 
-                layer = Image.open(path)
-                layered_img = add_image_layer(layered_img, layer)
+        img_counter = -1
+        with Image.open(constructor.image) as background:
+            for sequence in variations:
+                layered_img = background
+                for path in sequence:
+                    # same as the comment above
+                    if not path:
+                        continue
+                    layered_img = Image.alpha_composite(layered_img, layer_imgs[path])
 
-            images.append(layered_img)
+                img_counter += 1
+                filepath = join(self.savedir, f"{constructor.name}_{img_counter}")
+                # #TODO: add support for other save formats
+                filename = f"{filepath}.png"
+                layered_img.save(filename)
+                layered_img.close()
 
-        log.debug(f"Got {len(images)} images total")
+        # closing layers - there is no point in keeping them in memory
+        for key in list(layer_imgs):
+            layer_imgs[key].close()
 
-        return images
+        # increasing by 1 coz first img was 0
+        img_counter += 1
+        log.debug(f"{constructor.name} has made {img_counter} images total")
 
-    def save(self, images: list, name_mask: str, close_after_done: bool = True):
-        """Save specified images on disk"""
-        for number, item in enumerate(images):
-            filepath = join(self.savedir, f"{name_mask}_{number}")
-            filename = f"{filepath}.png"
-            item.save(filename)
-            log.debug(f"Successfully saved {filename} to disk")
-            if close_after_done:
-                item.close()
+        return img_counter

@@ -11,7 +11,8 @@ and further extend it.
 ## Image Requirements:
 
 - All images must have the same (x, y) size
-- All images must be in format that support transparency (png is STRONLY recommended)
+- All images must be in png (for now).
+- Images that represent layers must have transparent background
 - All images (for now) must follow same naming convention, in order to automatically
 distinguish layers (see "Usage")
 
@@ -55,13 +56,6 @@ If everything has been done correctly - you will get 6 different images in
 But what if original image has already included some hair or facial expression?
 Just add `--include-background` after command above - and you will keep them all
 (and amount of generated images will (in case of our example) increase to 11)
-
-## Limitations:
-
-- For the time being, this tool is a bit ram-heavy. Providing many images/layers
-at once may cause your machine to dive into swap
-- The only supported image formats are those, pillow can understand. E.g you will
-have to export your ".sai"/".psd" to something like ".png". Im sorry
 
 ## License:
 

@@ -120,11 +120,8 @@ if not constructors:
     exit(1)
 
 log.info("Building images (it may take some time)")
+img_amount = 0
 for item in constructors:
-    imgs = mixer.build_images(item)
-    mixer.save(
-        images=imgs,
-        name_mask=item.name,
-    )
+    img_amount += mixer.build_images(item)
 
-log.info("Done")
+log.info(f"Laymix has finished its work: made {img_amount} images total")
