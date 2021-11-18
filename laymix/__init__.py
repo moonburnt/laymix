@@ -14,7 +14,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see https://www.gnu.org/licenses/gpl-3.0.txt
 
-from .laymix import *
+from laymix.laymix import *
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
