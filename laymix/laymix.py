@@ -163,7 +163,9 @@ class LayerMixer:
         log.debug(f"Got following image constructors: {constructors}")
         return constructors
 
-    def build_images(self, constructor: ImageParts) -> int:
+    def build_images(
+        self, constructor: ImageParts, keep_names: bool = False, delimeter: str = "_"
+    ) -> int:
         """Build all possible image variants out of provided constructor"""
         log.debug(f"Building {constructor.name}")
 
@@ -196,7 +198,20 @@ class LayerMixer:
                     layered_img = Image.alpha_composite(layered_img, layer_imgs[path])
 
                 img_counter += 1
-                filepath = join(self.savedir, f"{constructor.name}_{img_counter}")
+                # It may be not as self-explanatory, but "keep_names" reffer to
+                # requested functionality to save parts of original filenames
+                # that dont collide with constructor's name
+                if keep_names:
+                    namebase = delimeter.join(
+                        [
+                            splitext(basename(bn))[0].replace(constructor.name, "")
+                            for bn in sequence
+                        ]
+                    )
+                    namebase = f"{constructor.name}{delimeter}{namebase}"
+                else:
+                    namebase = f"{constructor.name}{delimeter}{img_counter}"
+                filepath = join(self.savedir, namebase)
                 # #TODO: add support for other save formats
                 filename = f"{filepath}.png"
                 layered_img.save(filename)

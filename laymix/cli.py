@@ -68,18 +68,33 @@ ap.add_argument(
     action="store_true",
     help="Show debug messages in log",
 )
-
 ap.add_argument(
     "--apply-to-all",
     action="store_true",
     help="Toggle ability to apply layers to all images",
 )
-
 ap.add_argument(
     "--exact-match",
     action="store_true",
     help="Toggle ability to only use layers with names matching prefixes exactly",
 )
+ap.add_argument(
+    "--keep-names",
+    action="store_true",
+    help=("Toggle ability to include unique name parts of layers into final image."),
+)
+ap.add_argument(
+    "--delimeter",
+    nargs="?",
+    const=1,
+    default="_",
+    type=str,
+    help=(
+        "Symbol that will be used to split name of background and mask in final "
+        "image. Default - '_'"
+    ),
+)
+
 args = ap.parse_args()
 # TODO: maybe add ability to specify layer's files manually
 
@@ -120,6 +135,10 @@ if not constructors:
 log.info("Building images (it may take some time)")
 img_amount = 0
 for item in constructors:
-    img_amount += mixer.build_images(item)
+    img_amount += mixer.build_images(
+        constructor=item,
+        keep_names=args.keep_names,
+        delimeter=args.delimeter,
+    )
 
 log.info(f"Laymix has finished its work: made {img_amount} images total")
