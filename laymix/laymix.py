@@ -202,7 +202,7 @@ class LayerMixer:
                 # requested functionality to save parts of original filenames
                 # that dont collide with constructor's name
                 if keep_names:
-                    namebase = delimeter.join(
+                    namebase = str(delimeter).join(
                         [
                             splitext(basename(bn))[0].replace(constructor.name, "")
                             for bn in sequence
