@@ -205,7 +205,8 @@ class LayerMixer:
                     namebase = str(delimeter).join(
                         [
                             splitext(basename(bn))[0].replace(constructor.name, "")
-                            for bn in sequence
+                            # Avoiding crash on running with --include-background
+                            for bn in sequence if bn is not None
                         ]
                     )
                     namebase = f"{constructor.name}{delimeter}{namebase}"
