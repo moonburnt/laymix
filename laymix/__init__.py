@@ -1,4 +1,4 @@
-## laymix - utility to mix image layers into all possible results
+## laymix - utility to generate Cartesian products from sample of image data.
 ## Copyright (c) 2021 moonburnt
 ##
 ## This program is free software: you can redistribute it and/or modify

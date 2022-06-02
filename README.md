@@ -2,11 +2,11 @@
 
 ## Description:
 
-**LayMix** - cli utility to mix image layers into all possible results. It should
-be useful for artists who need to produce few slightly-different versions of same
-image (say, same character but with different hairstyles). Originally I've made
-it for some web visual novel, but then I've got permission to release the sources
-and further extend it.
+**LayMix** - cli utility to generate Cartesian products from sample of image data.
+It should be useful for artists who need to produce few slightly-different versions
+of the same image (say, one character but with different hairstyles). Originally
+I've made it for a web visual novel, but then I've got permission to release the
+sources and further extend it.
 
 ## Image Requirements:
 
